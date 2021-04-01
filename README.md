@@ -1,1 +1,3 @@
-# rdf_converter_gwascatalog
+# RDF converter for GWAS Catalog
+
+
