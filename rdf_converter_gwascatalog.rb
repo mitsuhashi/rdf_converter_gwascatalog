@@ -197,7 +197,7 @@ module GWASCatalog
           terms:genotyping_technology "#{h[:genotyping_technology]}" ;
           dct:date "#{h[:date_added_to_catalog]}"^^xsd:date ;
           dct:references pubmed:#{h[:pubmedid]} ;
-          gwas:has_pubmed_id "#{h[:pubmedid]}"^^xsd:string .
+          gwas:has_pubmed_id "#{h[:pubmedid]}" .
 
       TURTLE
     end
