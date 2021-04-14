@@ -75,7 +75,6 @@ module GWASCatalog
     def self.rdf(file, prefixes = false)
       File.open(file) do |f|
         keys = parse_header(f.gets)
-#        keys.to_a.each_with_index {|e, i| print "#{i}\t#{e}\n"}
         GWASCatalog.prefixes if $prefixes
         while line = f.gets
           ary = line.chomp.split(/\t/, -1)
@@ -166,7 +165,7 @@ module GWASCatalog
 
     def self.turtle(h)
       turtle = <<~"TURTLE"
-        [] a med2rdf:Variation ;
+        [] a gwas:Association ;
           terms:region "#{h[:region]}" ;
           terms:chr_id "#{h[:chr_id]}" ;
           terms:chr_pos "#{h[:chr_pos]}" ;
@@ -194,11 +193,12 @@ module GWASCatalog
           terms:cnv "#{h[:cnv]}" ;
           terms:mapped_trait "#{h[:mapped_trait]}" ;
           terms:mapped_trait_uri #{h[:mapped_trait_uri]} ;
-          terms:study_accession "#{h[:study_accession]}" ;
+          terms:study study:#{h[:study_accession]} ;
           terms:genotyping_technology "#{h[:genotyping_technology]}" ;
           dct:date "#{h[:date_added_to_catalog]}"^^xsd:date ;
           dct:references pubmed:#{h[:pubmedid]} ;
           gwas:has_pubmed_id "#{h[:pubmedid]}"^^xsd:string .
+
       TURTLE
     end
   end
