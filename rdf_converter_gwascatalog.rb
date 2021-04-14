@@ -184,7 +184,7 @@ module GWASCatalog
           terms:intergenic "#{h[:intergenic]}" ;
           terms:risk_allele_frequency #{h[:risk_allele_frequency]} ;
           terms:p_value #{h[:p_value]} ;
-          terms:p_value_mlog "#{h[:pvalue_mlog]}" ;
+          terms:p_value_mlog #{h[:pvalue_mlog]} ;
           terms:p_value_text "#{h[:p_value_text].gsub(/\\/, "")}" ;
           terms:odds_ratio #{h[:odds_ratio]} ;
           terms:beta #{h[:beta]} ;
