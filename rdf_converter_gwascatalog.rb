@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'pp'
 require 'optparse'
 
 module GWASCatalog
@@ -18,7 +19,8 @@ module GWASCatalog
     "dct" =>    "<http://purl.org/dc/terms/>",
     "pubmed" => "<http://rdf.ncbi.nlm.nih.gov/pubmed/>",
     "med2rdf" => "<http://med2rdf.org/ontology/>",
-    "ensg" => "<http://identifiers.org/ensembl/>"
+    "ensg" => "<http://identifiers.org/ensembl/>",
+    "dbsnp" => "<http://identifiers.org/dbsnp/>"
   }
 
   def prefixes
@@ -151,6 +153,19 @@ module GWASCatalog
       else
         association[:mapped_trait_uri] = association[:mapped_trait_uri].split(' ').map{|uri| "<#{uri}>"}.join(', ')
       end
+      association[:snp_ids] = []
+      if /rs(\d+)/ =~ association[:snps]
+        case association[:snps]
+        when /\;\srs/
+          association[:snp_ids] <<
+            association[:snps].split(/\;\s/).each{|snp_id| association[:snp_ids] << snp_id if /rs(\d+)/ =~ snp_id}
+        when /\sx\s/
+#          association[:snp_ids] <<
+            association[:snps].split(/\sx\s/).each{|snp_id| association[:snp_ids] << snp_id if /^rs(\d+)/ =~ snp_id}
+        else /^(rs\d+)$/
+          association[:snp_ids] << association[:snps]
+        end
+      end
       association
     end
 
@@ -164,6 +179,45 @@ module GWASCatalog
     end
 
     def self.turtle(h)
+      if h[:snp_ids] != []
+      turtle = <<~"TURTLE"
+        [] a gwas:Association ;
+          terms:region "#{h[:region]}" ;
+          terms:chr_id "#{h[:chr_id]}" ;
+          terms:chr_pos "#{h[:chr_pos]}" ;
+          terms:reported_genes '''#{h[:reported_genes]}''' ;
+          terms:mapped_genes "#{h[:mapped_genes]}" ;
+          terms:upstream_gene_id #{h[:upstream_gene_id]} ;
+          terms:downstream_gene_id #{h[:downstream_gene_id]} ;
+          terms:snp_gene_ids #{h[:snp_gene_ids]} ;
+          terms:upstream_gene_distance #{h[:upstream_gene_distance]} ;
+          terms:downstream_gene_distance #{h[:downstream_gene_distance]} ;
+          terms:strongest_snp_risk_allele "#{h[:strongest_snp_risk_allele]}" ;
+          terms:snps "#{h[:snps]}" ;
+          rdfs:seeAlso #{h[:snp_ids].map{|snp_id| "dbsnp:#{snp_id}"}.join(", ")} ;
+          terms:merged "#{h[:merged]}" ;
+          terms:snp_id_current "#{h[:snp_id_current]}" ;
+          terms:context "#{h[:context]}" ;
+          terms:intergenic "#{h[:intergenic]}" ;
+          terms:risk_allele_frequency #{h[:risk_allele_frequency]} ;
+          terms:p_value #{h[:p_value]} ;
+          terms:p_value_mlog #{h[:pvalue_mlog]} ;
+          terms:p_value_text "#{h[:p_value_text].gsub(/\\/, "")}" ;
+          terms:odds_ratio #{h[:odds_ratio]} ;
+          terms:beta #{h[:beta]} ;
+          terms:ci_text "#{h[:ci_text]}" ;
+          terms:platform_snp_passing_qc "#{h[:platform_snp_passing_qc]}" ;
+          terms:cnv "#{h[:cnv]}" ;
+          terms:mapped_trait "#{h[:mapped_trait]}" ;
+          terms:mapped_trait_uri #{h[:mapped_trait_uri]} ;
+          terms:study study:#{h[:study_accession]} ;
+          terms:genotyping_technology "#{h[:genotyping_technology]}" ;
+          dct:date "#{h[:date_added_to_catalog]}"^^xsd:date ;
+          dct:references pubmed:#{h[:pubmedid]} ;
+          gwas:has_pubmed_id "#{h[:pubmedid]}" .
+
+      TURTLE
+      else
       turtle = <<~"TURTLE"
         [] a gwas:Association ;
           terms:region "#{h[:region]}" ;
@@ -200,6 +254,8 @@ module GWASCatalog
           gwas:has_pubmed_id "#{h[:pubmedid]}" .
 
       TURTLE
+      end
+      turtle
     end
   end
 end
