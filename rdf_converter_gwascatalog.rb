@@ -54,6 +54,7 @@ module GWASCatalog
     end
 
     def self.turtle(h)
+      STDERR.print "#{h[:initial_sample_size]}\n"
       turtle = <<~"TURTLE"
         study:#{h[:study_accession]} a gwas:Study ;
           dct:identifier "#{h[:study_accession]}" ;
@@ -157,13 +158,14 @@ module GWASCatalog
       if /rs(\d+)/ =~ association[:snps]
         case association[:snps]
         when /\;\srs/
-          association[:snp_ids] <<
-            association[:snps].split(/\;\s/).each{|snp_id| association[:snp_ids] << snp_id if /rs(\d+)/ =~ snp_id}
-        when /\sx\s/
 #          association[:snp_ids] <<
-            association[:snps].split(/\sx\s/).each{|snp_id| association[:snp_ids] << snp_id if /^rs(\d+)/ =~ snp_id}
+          association[:snps].split(/\;\s/).each{|snp_id| association[:snp_ids] << snp_id if /rs(\d+)$/ =~ snp_id}
+        when /\,\s*rs/
+          association[:snps].split(/,\s*/).each{|snp_id| association[:snp_ids] << snp_id if /rs(\d+)$/ =~ snp_id}
+        when /\sx\s/
+          association[:snps].split(/\sx\s/).each{|snp_id| association[:snp_ids] << snp_id if /^rs(\d+)$/ =~ snp_id}
         else /^(rs\d+)$/
-          association[:snp_ids] << association[:snps]
+          association[:snp_ids] << association[:snps] if /^rs(\d+)$/ =~ association[:snps]
         end
       end
       association
