@@ -158,7 +158,6 @@ module GWASCatalog
       if /rs(\d+)/ =~ association[:snps]
         case association[:snps]
         when /\;\srs/
-#          association[:snp_ids] <<
           association[:snps].split(/\;\s/).each{|snp_id| association[:snp_ids] << snp_id if /rs(\d+)$/ =~ snp_id}
         when /\,\s*rs/
           association[:snps].split(/,\s*/).each{|snp_id| association[:snp_ids] << snp_id if /rs(\d+)$/ =~ snp_id}
