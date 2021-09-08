@@ -54,7 +54,6 @@ module GWASCatalog
     end
 
     def self.turtle(h)
-      STDERR.print "#{h[:initial_sample_size]}\n"
       turtle = <<~"TURTLE"
         study:#{h[:study_accession]} a gwas:Study ;
           dct:identifier "#{h[:study_accession]}" ;
