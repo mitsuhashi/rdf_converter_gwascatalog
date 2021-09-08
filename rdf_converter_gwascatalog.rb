@@ -151,7 +151,7 @@ module GWASCatalog
       if association[:mapped_trait_uri] == ""
         association[:mapped_trait_uri] = "\"\""
       else
-        association[:mapped_trait_uri] = association[:mapped_trait_uri].split(' ').map{|uri| "<#{uri}>"}.join(', ')
+        association[:mapped_trait_uri] = association[:mapped_trait_uri].split(', ').map{|uri| "<#{uri}>"}.join(', ')
       end
       association[:snp_ids] = []
       if /rs(\d+)/ =~ association[:snps]
