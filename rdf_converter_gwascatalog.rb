@@ -98,12 +98,34 @@ module GWASCatalog
       else
         association[:snp_gene_ids] = "\"\""
       end
-      if association[:or_or_beta].to_f <= 1.0
+      if /increase|decrease/ =~ association[:ci_text]
+        if /^([\[\(]*\s*[\d\.\-\,\s\%\u{00AD}]+\s*[\]\)]*)\s*(.+)$/ =~ association[:ci_text] ||
+           /^([\d\.\-\s\%\u{00AD}]+)\s*(.+)$/ =~ association[:ci_text] ||
+           /^(\[NR\]|NR|NA|NR NR)\s*(.+)$/ =~ association[:ci_text]
+          association[:beta] = association[:or_or_beta].to_f
+          association[:beta_unit] = $2
+          association[:ci_text] = $1
+          association[:odds_ratio] = "\"NA\""
+        else
+          association[:beta] = association[:or_or_beta].to_f
+          if /\s/ =~ association[:ci_text]
+            association[:beta_unit] = association[:ci_text]
+          else
+            association[:beta_unit] = association[:ci_text]
+          end
+          association[:odds_ratio] = "\"NA\""
+          association[:ci_text] = "\"NA\""
+        end
+      elsif /^$/ =~ association[:ci_text]
         association[:odds_ratio] = association[:or_or_beta].to_f
         association[:beta] = "\"NA\""
+        association[:beta_unit] = ""
+        association[:ci_text] = "\"NA\""
       else
-        association[:odds_ratio] = "\"NA\""
-        association[:beta] = association[:or_or_beta].to_f
+        association[:odds_ratio] = association[:or_or_beta].to_f
+        association[:beta] = "\"NA\""
+        association[:beta_unit] = ""
+        association[:ci_text] = association[:ci_text]
       end
       unless association[:upstream_gene_id] == ""
         association[:upstream_gene_id] = "ensg:#{association[:upstream_gene_id]}"
@@ -205,7 +227,8 @@ module GWASCatalog
           terms:p_value_text "#{h[:p_value_text].gsub(/\\/, "")}" ;
           terms:odds_ratio #{h[:odds_ratio]} ;
           terms:beta #{h[:beta]} ;
-          terms:ci_text "#{h[:ci_text]}" ;
+          terms:beta_unit '''#{h[:beta_unit]}''' ;
+          terms:ci_text '''#{h[:ci_text]}''' ;
           terms:platform_snp_passing_qc "#{h[:platform_snp_passing_qc]}" ;
           terms:cnv "#{h[:cnv]}" ;
           terms:mapped_trait "#{h[:mapped_trait]}" ;
@@ -242,7 +265,8 @@ module GWASCatalog
           terms:p_value_text "#{h[:p_value_text].gsub(/\\/, "")}" ;
           terms:odds_ratio #{h[:odds_ratio]} ;
           terms:beta #{h[:beta]} ;
-          terms:ci_text "#{h[:ci_text]}" ;
+          terms:beta_unit '''#{h[:beta_unit]}''' ;
+          terms:ci_text '''#{h[:ci_text]}''' ;
           terms:platform_snp_passing_qc "#{h[:platform_snp_passing_qc]}" ;
           terms:cnv "#{h[:cnv]}" ;
           terms:mapped_trait "#{h[:mapped_trait]}" ;
