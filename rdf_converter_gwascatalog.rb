@@ -152,7 +152,7 @@ module GWASCatalog
         if /\.$/ =~ association[:risk_allele_frequency]
           association[:risk_allele_frequency] = "0.0"
         elsif /^\./ =~ association[:risk_allele_frequency]
-          association[:risk_allele_frequency] = "0" . association[:risk_allele_frequency]
+          association[:risk_allele_frequency] = "0" + association[:risk_allele_frequency]
         end
       else
         association[:risk_allele_frequency] = "\"\""
