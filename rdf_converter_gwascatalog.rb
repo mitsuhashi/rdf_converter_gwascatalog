@@ -60,7 +60,7 @@ module GWASCatalog
           dct:date "#{h[:date_added_to_catalog]}"^^xsd:date ;
           dct:references pubmed:#{h[:pubmedid]} ;
           gwas:has_pubmed_id "#{h[:pubmedid]}"^^xsd:string ;
-          dct:description "#{h[:disease_trait]}"@en ;
+          dct:description "#{h[:disease_trait].gsub('"', '\"')}"@en ;
           terms:initial_sample_size "#{h[:initial_sample_size]}"@en ;
           terms:replication_sample_size "#{h[:replication_sample_size]}"@en ;
           terms:platform_snps_passing_qc "#{h[:platform_snps_passing_qc]}" ;
@@ -151,6 +151,8 @@ module GWASCatalog
       elsif /^[\d\.]+$/ =~ association[:risk_allele_frequency]
         if /\.$/ =~ association[:risk_allele_frequency]
           association[:risk_allele_frequency] = "0.0"
+        elsif /^\./ =~ association[:risk_allele_frequency]
+          association[:risk_allele_frequency] = "0" . association[:risk_allele_frequency]
         end
       else
         association[:risk_allele_frequency] = "\"\""
