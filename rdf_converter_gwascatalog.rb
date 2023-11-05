@@ -46,11 +46,13 @@ module GWASCatalog
     end
 
     def self.parse_header(header)
-      header.chomp
+      header = header.chomp
             .split("\t") 
             .map{|e| e.downcase.gsub(/[\-\s\/]/, '_')
             .gsub(/[\[\]]/, '')
             .to_sym}
+      header[1] = :pubmed_id if header[1] == :pubmedid
+      header
     end
 
     def self.turtle(h)
@@ -58,9 +60,9 @@ module GWASCatalog
         study:#{h[:study_accession]} a gwas:Study ;
           dct:identifier "#{h[:study_accession]}" ;
           dct:date "#{h[:date_added_to_catalog]}"^^xsd:date ;
-          dct:references pubmed:#{h[:pubmedid]} ;
-          gwas:has_pubmed_id "#{h[:pubmedid]}"^^xsd:string ;
-          dct:description "#{h[:disease_trait]}"@en ;
+          dct:references pubmed:#{h[:pubmed_id]} ;
+          gwas:has_pubmed_id "#{h[:pubmed_id]}"^^xsd:string ;
+          dct:description '''#{h[:disease_trait]}'''@en ;
           terms:initial_sample_size "#{h[:initial_sample_size]}"@en ;
           terms:replication_sample_size "#{h[:replication_sample_size]}"@en ;
           terms:platform_snps_passing_qc "#{h[:platform_snps_passing_qc]}" ;
