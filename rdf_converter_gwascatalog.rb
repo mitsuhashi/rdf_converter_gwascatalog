@@ -38,7 +38,7 @@ module GWASCatalog
         keys = parse_header(f.gets)
         GWASCatalog.prefixes if $prefixes
         while line = f.gets
-          ary = line.chomp.split("\t")
+          ary = line.chomp.split("\t", -1)
           study = [keys, ary].transpose.to_h
           puts turtle(study)
         end
